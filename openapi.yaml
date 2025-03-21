@@ -1,0 +1,76 @@
+openapi: 3.1.0
+info:
+  title: Open Park Project - OpenAPI 3.1
+  description: |-
+    The Open Park Project (OPP) is a free open-source project that aims to 
+    provide a scalable and flexible platform for the management of parking areas.
+
+    Some useful links:
+    - [Open Park Project](https://github.com/OpenParkProject)
+    - [API definition](https://github.com/OpenParkProject/OPP-common/openapi.yaml)
+
+  contact:
+    email: tollsimy.dev@protonmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: "0.1"
+externalDocs:
+  description: Wiki
+  url: https://openparkproject.github.io/OPP-wiki/
+
+tags:
+  - name: test
+    description: test description
+
+paths:
+  /test:
+    post:
+      tags:
+        - test
+      summary: Add a new test
+      description: Add a new test
+      operationId: addTest
+      requestBody:
+        description: Create a new test
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Test'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Test'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Test'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Test'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Test'
+        '400':
+          description: Invalid input
+        '422':
+          description: Validation exception
+      security:
+        - petstore_auth:
+            - write:Test
+            - read:Test
+
+components:
+  schemas:
+    Test:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          examples: [10]
+      xml:
+        name: test
