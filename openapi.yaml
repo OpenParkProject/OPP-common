@@ -373,6 +373,17 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 
   /users/{id}/cars:
+
+    parameters:
+      - name: id
+        in: path
+        description: ID of user that owns the cars
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 10
+
     get:
       tags:
         - car
@@ -380,14 +391,6 @@ paths:
       description: Get all cars of a user
       operationId: getCarsByUserId
       parameters:
-        - name: id
-          in: path
-          description: ID of user to return cars
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 10
         - name: currently_parked
           in: query
           description: If true, return only cars that are currently parked (have a valid ticket)
@@ -460,15 +463,6 @@ paths:
       summary: Delete an existing car from a user
       description: Delete an existing car from a user
       operationId: deleteCar
-      parameters:
-        - name: id
-          in: path
-          description: ID of car to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 10
       responses:
         '200':
           description: Successful operation
@@ -493,15 +487,6 @@ paths:
       summary: Update an existing car of a user
       description: Update an existing car of a user
       operationId: updateCar
-      parameters:
-        - name: id
-          in: path
-          description: ID of car to update
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 10
       requestBody:
         description: Update an existing car of a user
         content:
@@ -532,6 +517,16 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 
   /users/{id}/tickets:
+    parameters:
+      - name: id
+        in: path
+        description: ID of user that owns the cars
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 10
+
     get:
       tags:
         - ticket
@@ -539,14 +534,6 @@ paths:
       description: Get all tickets of a user
       operationId: getTicketsByUserId
       parameters:
-        - name: id
-          in: path
-          description: ID of user to return tickets
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 10
         - name: valid_only
           in: query
           description: If true, return only currently valid tickets (not expired)
@@ -579,21 +566,23 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 
   /users/{id}/fines:
+
+    parameters:
+    - name: id
+      in: path
+      description: ID of user that owns the cars
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 10
+
     get:
       tags:
         - fine
       summary: Get all fines of a user
       description: Get all fines of a user
       operationId: getFinesByUserId
-      parameters:
-        - name: id
-          in: path
-          description: ID of user to return fines
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 10
       responses:
         '200':
           description: Successful operation
@@ -769,20 +758,21 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 
   /cars/{plate}/tickets:
+    parameters:
+      - name: plate
+        in: path
+        description: Plate of car to get tickets
+        required: true
+        schema:
+          type: string
+          example: ABC123
+  
     get:
       tags:
         - ticket
       summary: Get tickets by plate
       description: Get tickets by plate
       operationId: getTicketsByPlate
-      parameters:
-        - name: plate
-          in: path
-          description: Plate of car to return tickets
-          required: true
-          schema:
-            type: string
-            example: 123456
       responses:
         '200':
           description: Successful operation
@@ -813,14 +803,6 @@ paths:
       summary: Buy a ticket for a car
       description: Buy a ticket for a car
       operationId: addTicket
-      parameters:
-        - name: plate
-          in: path
-          description: Plate of car to add ticket
-          required: true
-          schema:
-            type: string
-            example: 123456
       requestBody:
         description: Buy a ticket for a car
         content:
@@ -889,21 +871,23 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 
   /tickets/{id}/pay:
+
+    parameters:
+    - name: id
+      in: path
+      description: ID of user that owns the cars
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 10
+  
     post:
       tags:
         - payment
       summary: Pay a ticket
       description: Pay a ticket
       operationId: payTicket
-      parameters:
-        - name: id
-          in: path
-          description: ID of ticket to pay
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 10
       responses:
         '200':
           description: Successful operation
