@@ -1,0 +1,157 @@
+openapi: 3.0.0
+info:
+  title: Parking Payment API
+  description: API for parking fee payment via OCR license plate recognition and Raspberry Pi RFID.
+  version: 1.0.0
+
+servers:
+  - url: https://api.parkingpay.com/v1
+    description: Main API server for application and Raspberry Pi access
+  - url: https://raspberrypi.parkingpay.com
+    description: Dedicated API endpoint for Raspberry Pi devices accessing the remote database
+  - url: https://mobile.parkingpay.com
+    description: API endpoint for mobile applications accessing the remote database
+
+paths:
+  /payment/ocr:
+    post:
+      summary: Recognize license plate via OCR and proceed to payment
+      description: Users scan their license plate using OCR to retrieve parking details from the database and proceed with payment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OcrRecognitionRequest'
+      responses:
+        '200':
+          description: License plate recognized, payment details retrieved from database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDetailsResponse'
+        '400':
+          description: Invalid license plate
+        '500':
+          description: Internal server error
+
+  /payment/manual:
+    post:
+      summary: Enter license plate manually to proceed to payment
+      description: Users enter their license plate number manually to retrieve parking details from the database and proceed with payment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualPlateEntryRequest'
+      responses:
+        '200':
+          description: Payment details retrieved from database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDetailsResponse'
+        '400':
+          description: Invalid license plate
+        '500':
+          description: Internal server error
+
+  /payment/rfid:
+    post:
+      summary: Pay parking fee using RFID card
+      description: Users tap an RFID card on a Raspberry Pi-based reader to pay. The payment is processed via a web API request to a remote server.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RfidPaymentRequest'
+      responses:
+        '200':
+          description: Payment successful, balance updated in database
+        '400':
+          description: Invalid card or insufficient funds
+        '500':
+          description: Internal server error
+
+  /card/balance:
+    get:
+      summary: Get RFID card balance
+      description: Retrieve the remaining balance on an RFID card from the database.
+      parameters:
+        - name: cardId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Balance retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardBalanceResponse'
+        '404':
+          description: Card not found
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    OcrRecognitionRequest:
+      type: object
+      properties:
+        imageBase64:
+          type: string
+          description: Base64-encoded image of the license plate.
+
+    ManualPlateEntryRequest:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+          description: Manually entered license plate number.
+
+    PaymentDetailsResponse:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+          description: Recognized license plate number retrieved from database.
+        parkingTime:
+          type: string
+          format: date-time
+          description: Parking start time retrieved from database.
+        duration:
+          type: string
+          description: Duration of parking.
+        amountDue:
+          type: number
+          format: float
+          description: Amount to be paid.
+
+    RfidPaymentRequest:
+      type: object
+      properties:
+        cardId:
+          type: string
+          description: Unique RFID card identifier.
+        parkingId:
+          type: string
+          description: Unique identifier for the parking session.
+
+    CardBalanceResponse:
+      type: object
+      properties:
+        cardId:
+          type: string
+        balance:
+          type: number
+          format: float
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
