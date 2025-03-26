@@ -1,0 +1,18 @@
+@startuml OPP-context
+
+:User: as User
+:Controller: as Controller
+:Car Driver: as Driver
+:PaymentService: as PaymentService
+:Admin: as Admin
+
+"OPP" as (OPP) <<Software System>>
+
+User <|-- Controller
+User <|-- Driver
+
+Admin --> OPP : CLI
+User --> OPP : Totem/\nApp/\nWebsite
+PaymentService --> OPP : APIs
+
+@enduml
