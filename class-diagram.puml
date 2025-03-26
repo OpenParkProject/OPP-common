@@ -1,0 +1,66 @@
+@startuml OPP-class
+
+class User {
+  +Integer id
+  +String name
+  +String surname
+  +String email
+  +String password
+  +login()
+  +logout()
+}
+
+class Driver {
+  +register()
+  +update()
+  +delete()
+}
+
+class Controller {
+  +issueFine()
+}
+
+class Car {
+  +String plate
+  +String brand
+  +String model
+  +add()
+  +delete()
+}
+
+class Ticket {
+  +Integer id
+  +String startdate
+  +String enddate
+  +Float price
+  +add()
+}
+
+class Payment {
+  +Integer id
+  +Float amount
+  +String date
+  +add()
+}
+
+class Fine {
+  +Integer id
+  +String plate
+  +Float amount
+  +String date
+  +add()
+  +delete()
+}
+
+User o-- Driver : is a
+User o-- Controller : is a
+
+Driver O-- Car : owns 0..*
+Car o-- Ticket : has 0..*
+Ticket *-- Payment : has 1
+Car o-- Fine : has 0..*
+Ticket --> Driver : purchased by
+Fine --> Driver : issued to
+Controller --> Fine : issues
+
+@enduml
