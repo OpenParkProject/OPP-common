@@ -1,0 +1,61 @@
+name: Generate and Push API Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'openapi.yaml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'openapi.yaml'
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Redoc CLI
+        run: npm install -g redoc-cli
+
+      - name: Generate HTML docs with Redoc
+        run: |
+          mkdir -p redoc-static
+          redoc-cli bundle openapi.yaml -o redoc-static/index.html
+
+      - name: Push to docs-api branch
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin
+          git checkout --orphan docs-api
+
+          git rm -rf . > /dev/null 2>&1 || true
+          cp -r redoc-static/* .
+          touch .nojekyll
+
+          git add .
+          git commit -m "Update API docs"
+          git push -f origin docs-api
+
+  trigger-frontend:
+    runs-on: ubuntu-latest
+    needs: build-docs
+    steps:
+      - name: Trigger repository_dispatch in OPP-wiki
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: OpenParkProject/OPP-wiki
+          event-type: OPP-common-updated
