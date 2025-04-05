@@ -49,7 +49,7 @@ jobs:
           git commit -m "Update API docs"
           git push -f origin docs-api
 
-  trigger-frontend:
+  trigger-wiki:
     runs-on: ubuntu-latest
     needs: build-docs
     steps:
