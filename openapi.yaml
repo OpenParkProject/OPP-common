@@ -54,7 +54,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Session'
+              $ref: '#/components/schemas/SessionRequest'
         required: true
       responses:
         '200':
@@ -62,7 +62,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthToken'
+                $ref: '#/components/schemas/SessionResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -93,7 +93,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -169,7 +169,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/UserResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -196,7 +196,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserRequest'
         required: true
       responses:
         '201':
@@ -204,7 +204,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -267,7 +267,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -318,7 +318,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserRequest'
         required: true
       responses:
         '200':
@@ -326,7 +326,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -536,7 +536,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Ticket'
+                  $ref: '#/components/schemas/TicketResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -577,7 +577,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Fine'
+                  $ref: '#/components/schemas/FineResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -727,7 +727,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Ticket'
+                  $ref: '#/components/schemas/TicketResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -767,7 +767,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Ticket'
+                  $ref: '#/components/schemas/TicketResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -794,7 +794,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Ticket'
+              $ref: '#/components/schemas/TicketRequest'
         required: true
       responses:
         '201':
@@ -802,7 +802,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Ticket'
+                $ref: '#/components/schemas/TicketResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -842,7 +842,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Ticket'
+                $ref: '#/components/schemas/TicketResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -882,7 +882,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Ticket'
+                $ref: '#/components/schemas/TicketResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -931,7 +931,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Fine'
+                  $ref: '#/components/schemas/FineResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -994,7 +994,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Fine'
+                $ref: '#/components/schemas/FineResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -1021,7 +1021,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Fine'
+              $ref: '#/components/schemas/FineRequest'
         required: true
       responses:
         '201':
@@ -1029,7 +1029,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Fine'
+                $ref: '#/components/schemas/FineResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -1047,166 +1047,134 @@ paths:
 
 components:
   schemas:
-  
-    Session:
-      type: object
-      properties:
-        username:
-          type: string
-          example: johndoe
-        password:
-          type: string
-          writeOnly: true
-          example: 123456
-      required:
-        - username
-        - password
 
-    AuthToken:
-      type: object
-      properties:
-        access_token:
-          type: string
-          example: "eyJhbGciOiJIUzI1NiIsInR5..."
-        token_type:
-          type: string
-          example: "bearer"
-        expires_in:
-          type: integer
-          example: 3600
-        user:
-          $ref: '#/components/schemas/User'
-
-    User:
+    BaseUser:
       type: object
       properties:
         name:
           type: string
-          example: John
         surname:
           type: string
-          example: Doe
         username:
           type: string
-          example: johndoe
         email:
           type: string
           format: email
-          example: john.doe@gmail.com
+
+    UserRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseUser'
+        - type: object
+          properties:
+            password:
+              type: string
+            role:
+              type: string
+              enum: [driver, controller, admin]
+          required: [password, role]
+
+    UserResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseUser'
+
+    SessionRequest:
+      type: object
+      properties:
+        username:
+          type: string
         password:
           type: string
-          writeOnly: true
-          example: 123456
-        role:
-          type: string
-          enum:
-            - driver
-            - controller
-            - admin
-          writeOnly: true
-          example: driver
-      required:
-        - name
-        - surname
-        - username
-        - email
-        - password
-        - role
+      required: [username, password]
 
-    Car:
-      required:
-        - plate
+    SessionResponse:
       type: object
       properties:
-        plate:
+        access_token:
           type: string
-          example: ADC123
-        brand:
+        token_type:
           type: string
-          example: Ford
-        model:
-          type: string
-          example: Fiesta
-
-    Ticket:
-      required:
-        - id
-        - plate
-        - start_date
-        - duration
-        - end_date
-        - price
-        - status
-        - creation_time
-      type: object
-      properties:
-        id:
+        expires_in:
           type: integer
-          format: int64
-          readOnly: true
-          example: 10
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    BaseTicket:
+      type: object
+      properties:
         plate:
           type: string
-          example: ABC123
         start_date:
           type: string
           format: date-time
-          example: 2022-01-01T00:00:00Z
-        duration:
-          type: integer
-          format: int32
-          writeOnly: true
-          example: 60
-        end_date:
-          type: string
-          format: date-time
-          readOnly: true
-          example: 2022-01-01T00:00:00Z
-        price:
-          type: number
-          format: float
-          readOnly: true
-          example: 10.0
-        status:
-          type: string
-          enum:
-            - unpaid
-            - active
-            - expired
-          readOnly: true
-          example: active
-        creation_time:
-          type: string
-          format: date-time
-          readOnly: true
-          example: 2022-01-01T00:00:00Z
 
-    Fine:
-      required:
-        - id
-        - plate
-        - date
-        - amount
+    TicketRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseTicket'
+        - type: object
+          properties:
+            duration:
+              type: integer
+          required: [duration]
+
+    TicketResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseTicket'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            end_date:
+              type: string
+              format: date-time
+            price:
+              type: number
+              format: float
+            status:
+              type: string
+              enum: [unpaid, active, expired]
+            creation_time:
+              type: string
+              format: date-time
+          required: [id, end_date, price, status, creation_time]
+
+    Car:
       type: object
+      required: [plate]
       properties:
-        id:
-          type: integer
-          format: int64
-          readOnly: true
-          example: 10
         plate:
           type: string
-          example: ABC123
-        date:
+        brand:
           type: string
-          format: date-time
-          readOnly: true
-          example: 2022-01-01T00:00:00Z
+        model:
+          type: string
+
+    BaseFine:
+      type: object
+      properties:
+        plate:
+          type: string
         amount:
           type: number
           format: float
-          example: 10.0
-  
+
+    FineRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseFine'
+
+    FineResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseFine'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            date:
+              type: string
+              format: date-time
+          required: [id, date]
+
   responses:
     UnauthorizedError:
       description: Unauthorized - Invalid or missing token
