@@ -37,20 +37,7 @@ tags:
     description: fine management
 
 security:
-  - opp_auth: [
-      read:User,
-      write:User,
-      read:Session,
-      write:Session,
-      read:Car,
-      write:Car,
-      read:Ticket,
-      write:Ticket,
-      read:Payment,
-      write:Payment,
-      read:Fine,
-      write:Fine
-    ]
+  - opp_auth: []
 
 paths:
 
@@ -67,15 +54,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SessionRequest'
+              $ref: '#/components/schemas/Session'
         required: true
       responses:
         '200':
-          description: Successful operation
+          description: Successful login
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/AuthToken'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -130,7 +117,7 @@ paths:
       operationId: logout
       responses:
         '200':
-          description: Successful operation
+          description: Successful logout
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -154,6 +141,8 @@ paths:
       summary: Get all users
       description: Get all users
       operationId: getUsers
+      x-required-permissions:
+        - users:read:all
       parameters:
         - name: limit
           in: query
@@ -210,8 +199,8 @@ paths:
               $ref: '#/components/schemas/User'
         required: true
       responses:
-        '200':
-          description: Successful operation
+        '201':
+          description: User created successfully
           content:
             application/json:
               schema:
@@ -239,8 +228,8 @@ paths:
       description: Delete all users
       operationId: deleteUsers
       responses:
-        '200':
-          description: Successful operation
+        '204':
+          description: All users deleted successfully
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -256,23 +245,22 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /users/{id}:
+  /users/{username}:
+    parameters:
+      - name: username
+        in: path
+        description: Username of user to return
+        required: true
+        schema:
+          type: string
+          example: johndoe
 
     get:
       tags:
         - user
-      summary: Get user by ID
-      description: Get user by ID
-      operationId: getUserById
-      parameters:
-        - name: id
-          in: path
-          description: ID of user to return
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 10
+      summary: Get user by username
+      description: Get user by username
+      operationId: getUser
       responses:
         '200':
           description: Successful operation
@@ -300,19 +288,10 @@ paths:
         - user
       summary: Delete an existing user
       description: Delete an existing user
-      operationId: deleteUserById
-      parameters:
-        - name: id
-          in: path
-          description: ID of user to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 10
+      operationId: deleteUser
       responses:
-        '200':
-          description: Successful operation
+        '204':
+          description: User deleted successfully
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -334,15 +313,6 @@ paths:
       summary: Update an existing user
       description: Update an existing user
       operationId: updateUser
-      parameters:
-        - name: id
-          in: path
-          description: ID of user to update
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 10
       requestBody:
         description: Update an existing user
         content:
@@ -352,7 +322,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Successful operation
+          description: User updated successfully
           content:
             application/json:
               schema:
@@ -372,24 +342,23 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /users/{id}/cars:
+  /users/{username}/cars:
 
     parameters:
-      - name: id
+      - name: username
         in: path
-        description: ID of user that owns the cars
+        description: Username of user that owns the cars
         required: true
         schema:
-          type: integer
-          format: int64
-          example: 10
+          type: string
+          example: johndoe
 
     get:
       tags:
         - car
       summary: Get all cars of a user
       description: Get all cars of a user
-      operationId: getCarsByUserId
+      operationId: getUserCars
       parameters:
         - name: currently_parked
           in: query
@@ -427,7 +396,7 @@ paths:
         - car
       summary: Add a new car to a user
       description: Add a new car to a user
-      operationId: addCar
+      operationId: addUserCar
       requestBody:
         description: Create a new car for a user
         content:
@@ -436,8 +405,8 @@ paths:
               $ref: '#/components/schemas/Car'
         required: true
       responses:
-        '200':
-          description: Successful operation
+        '201':
+          description: Car created successfully
           content:
             application/json:
               schema:
@@ -457,15 +426,33 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
+  /users/{username}/cars/{plate}:
+
+    parameters:
+      - name: username
+        in: path
+        description: Username of user that owns the car
+        required: true
+        schema:
+          type: string
+          example: johndoe
+      - name: plate
+        in: path
+        description: Plate of car to operate on
+        required: true
+        schema:
+          type: string
+          example: ABC123
+
     delete:
       tags:
         - car
       summary: Delete an existing car from a user
       description: Delete an existing car from a user
-      operationId: deleteCar
+      operationId: deleteUserCar
       responses:
-        '200':
-          description: Successful operation
+        '204':
+          description: Car deleted successfully
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -486,7 +473,7 @@ paths:
         - car
       summary: Update an existing car of a user
       description: Update an existing car of a user
-      operationId: updateCar
+      operationId: updateUserCar
       requestBody:
         description: Update an existing car of a user
         content:
@@ -496,7 +483,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Successful operation
+          description: Car updated successfully
           content:
             application/json:
               schema:
@@ -516,23 +503,23 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /users/{id}/tickets:
+  /users/{username}/tickets:
+
     parameters:
-      - name: id
+      - name: username
         in: path
-        description: ID of user that owns the cars
+        description: Username of user that owns the tickets
         required: true
         schema:
-          type: integer
-          format: int64
-          example: 10
+          type: string
+          example: johndoe
 
     get:
       tags:
         - ticket
       summary: Get all tickets of a user
       description: Get all tickets of a user
-      operationId: getTicketsByUserId
+      operationId: getUserTickets
       parameters:
         - name: valid_only
           in: query
@@ -549,7 +536,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TicketResponse'
+                  $ref: '#/components/schemas/Ticket'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -565,24 +552,23 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /users/{id}/fines:
+  /users/{username}/fines:
 
     parameters:
-    - name: id
+    - name: username
       in: path
-      description: ID of user that owns the cars
+      description: Username of user that owns the fines
       required: true
       schema:
-        type: integer
-        format: int64
-        example: 10
+        type: string
+        example: johndoe
 
     get:
       tags:
         - fine
       summary: Get all fines of a user
       description: Get all fines of a user
-      operationId: getFinesByUserId
+      operationId: getUserFines
       responses:
         '200':
           description: Successful operation
@@ -670,8 +656,8 @@ paths:
       description: Delete all cars
       operationId: deleteCars
       responses:
-        '200':
-          description: Successful operation
+        '204':
+          description: All cars deleted successfully
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -741,7 +727,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TicketResponse'
+                  $ref: '#/components/schemas/Ticket'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -772,7 +758,7 @@ paths:
         - ticket
       summary: Get tickets by plate
       description: Get tickets by plate
-      operationId: getTicketsByPlate
+      operationId: getCarTickets
       responses:
         '200':
           description: Successful operation
@@ -781,7 +767,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TicketResponse'
+                  $ref: '#/components/schemas/Ticket'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -802,21 +788,21 @@ paths:
         - ticket
       summary: Buy a ticket for a car
       description: Buy a ticket for a car
-      operationId: addTicket
+      operationId: addCarTicket
       requestBody:
         description: Buy a ticket for a car
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TicketRequest'
+              $ref: '#/components/schemas/Ticket'
         required: true
       responses:
-        '200':
-          description: Successful operation
+        '201':
+          description: Ticket created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TicketResponse'
+                $ref: '#/components/schemas/Ticket'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -833,28 +819,30 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 
   /tickets/{id}:
+
+    parameters:
+      - name: id
+        in: path
+        description: ID of ticket to return
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 10
+
     get:
       tags:
         - ticket
       summary: Get ticket by ID
       description: Get ticket by ID
       operationId: getTicketById
-      parameters:
-        - name: id
-          in: path
-          description: ID of ticket to return
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 10
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TicketResponse'
+                $ref: '#/components/schemas/Ticket'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -875,7 +863,7 @@ paths:
     parameters:
     - name: id
       in: path
-      description: ID of user that owns the cars
+      description: ID of ticket to pay
       required: true
       schema:
         type: integer
@@ -889,12 +877,12 @@ paths:
       description: Pay a ticket
       operationId: payTicket
       responses:
-        '200':
-          description: Successful operation
+        '201':
+          description: Ticket paid successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TicketResponse'
+                $ref: '#/components/schemas/Ticket'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -966,8 +954,8 @@ paths:
       description: Delete all fines
       operationId: deleteFines
       responses:
-        '200':
-          description: Successful operation
+        '204':
+          description: All fines deleted successfully
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -984,20 +972,22 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 
   /fines/{plate}:
+
+    parameters:
+      - name: plate
+        in: path
+        description: Plate of car to return fine
+        required: true
+        schema:
+          type: string
+          example: 123456
+
     get:
       tags:
         - fine
       summary: Get fine by plate
       description: Get fine by plate
-      operationId: getFineByPlate
-      parameters:
-        - name: plate
-          in: path
-          description: Plate of car to return fine
-          required: true
-          schema:
-            type: string
-            example: 123456
+      operationId: getCarFines
       responses:
         '200':
           description: Successful operation
@@ -1025,15 +1015,7 @@ paths:
         - fine
       summary: Issue a new fine for a car
       description: Issue a new fine for a car
-      operationId: addFine
-      parameters:
-        - name: plate
-          in: path
-          description: Plate of car to add fine
-          required: true
-          schema:
-            type: string
-            example: 123456
+      operationId: addCarFine
       requestBody:
         description: Issue a new fine for a car
         content:
@@ -1042,8 +1024,8 @@ paths:
               $ref: '#/components/schemas/Fine'
         required: true
       responses:
-        '200':
-          description: Successful operation
+        '201':
+          description: Fine created successfully
           content:
             application/json:
               schema:
@@ -1066,44 +1048,54 @@ paths:
 components:
   schemas:
   
-    SessionRequest:
-      required:
-        - email
-        - password
+    Session:
       type: object
       properties:
-        email:
+        username:
           type: string
-          format: email
-          example: john.doe@gmail.com
+          example: johndoe
         password:
           type: string
+          writeOnly: true
           example: 123456
-
-    User:
       required:
-        - name
-        - surname
-        - email
-        - role
+        - username
+        - password
+
+    AuthToken:
       type: object
       properties:
-        id:
+        access_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5..."
+        token_type:
+          type: string
+          example: "bearer"
+        expires_in:
           type: integer
-          format: int64
-          examples: [10]
+          example: 3600
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
         name:
           type: string
           example: John
         surname:
           type: string
           example: Doe
+        username:
+          type: string
+          example: johndoe
         email:
           type: string
           format: email
           example: john.doe@gmail.com
         password:
           type: string
+          writeOnly: true
           example: 123456
         role:
           type: string
@@ -1111,7 +1103,15 @@ components:
             - driver
             - controller
             - admin
+          writeOnly: true
           example: driver
+      required:
+        - name
+        - surname
+        - username
+        - email
+        - password
+        - role
 
     Car:
       required:
@@ -1128,24 +1128,12 @@ components:
           type: string
           example: Fiesta
 
-    TicketRequest:
-      required:
-        - start_date
-        - duration
-      type: object
-      properties:
-        start_date:
-          type: string
-          example: 2022-01-01T00:00:00Z
-        duration:
-          type: integer
-          example: 60
-
-    TicketResponse:
+    Ticket:
       required:
         - id
         - plate
         - start_date
+        - duration
         - end_date
         - price
         - status
@@ -1155,19 +1143,29 @@ components:
         id:
           type: integer
           format: int64
-          examples: [10]
+          readOnly: true
+          example: 10
         plate:
           type: string
           example: ABC123
         start_date:
           type: string
+          format: date-time
           example: 2022-01-01T00:00:00Z
+        duration:
+          type: integer
+          format: int32
+          writeOnly: true
+          example: 60
         end_date:
           type: string
+          format: date-time
+          readOnly: true
           example: 2022-01-01T00:00:00Z
         price:
           type: number
           format: float
+          readOnly: true
           example: 10.0
         status:
           type: string
@@ -1175,13 +1173,17 @@ components:
             - unpaid
             - active
             - expired
+          readOnly: true
           example: active
         creation_time:
           type: string
+          format: date-time
+          readOnly: true
           example: 2022-01-01T00:00:00Z
 
     Fine:
       required:
+        - id
         - plate
         - date
         - amount
@@ -1190,12 +1192,15 @@ components:
         id:
           type: integer
           format: int64
-          examples: [10]
+          readOnly: true
+          example: 10
         plate:
           type: string
           example: ABC123
         date:
           type: string
+          format: date-time
+          readOnly: true
           example: 2022-01-01T00:00:00Z
         amount:
           type: number
@@ -1220,12 +1225,15 @@ components:
 
   x-permissions:
     driver:
+      - users:read:own
+      - users:write:own
       - cars:read:own
       - cars:write:own
       - tickets:read:own
       - tickets:write:own
       - fines:read:own
     controller:
+      - users:read:own
       - tickets:read:all
       - fines:read:all
       - fines:write:all
@@ -1236,6 +1244,7 @@ components:
       - cars:read:all
       - cars:write:all
       - tickets:read:all
+      - tickets:write:all
       - fines:read:all
       - fines:write:all
 
