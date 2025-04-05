@@ -1060,6 +1060,7 @@ components:
         email:
           type: string
           format: email
+      required: [name, surname, username, email]
 
     UserRequest:
       allOf:
@@ -1097,6 +1098,7 @@ components:
           type: integer
         user:
           $ref: '#/components/schemas/UserResponse'
+      required: [access_token, token_type, expires_in, user]
 
     BaseTicket:
       type: object
@@ -1106,6 +1108,7 @@ components:
         start_date:
           type: string
           format: date-time
+      required: [plate, start_date]
 
     TicketRequest:
       allOf:
@@ -1157,6 +1160,7 @@ components:
         amount:
           type: number
           format: float
+      required: [plate, amount]
 
     FineRequest:
       allOf:
