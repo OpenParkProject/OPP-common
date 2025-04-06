@@ -1,0 +1,1229 @@
+openapi: 3.1.0
+info:
+  title: Open Park Project - OpenAPI 3.1
+  description: |-
+    The Open Park Project (OPP) is a free open-source project that aims to 
+    provide a scalable and flexible platform for the management of parking areas.
+
+    Some useful links:
+    - [Open Park Project](https://github.com/OpenParkProject)
+    - [API definition](https://github.com/OpenParkProject/OPP-common/openapi.yaml)
+
+  contact:
+    email: tollsimy.dev@protonmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local server
+externalDocs:
+  description: Wiki
+  url: https://openparkproject.github.io/OPP-wiki/
+
+tags:
+  - name: user
+    description: user management
+  - name: session
+    description: session management
+  - name: car
+    description: car management
+  - name: ticket
+    description: ticket management
+  - name: payment
+    description: payment management
+  - name: fine
+    description: fine management
+
+security:
+  - opp_auth: []
+
+paths:
+
+  /sessions:
+  
+    post:
+      tags:
+        - session
+      summary: Login
+      description: Login
+      operationId: login
+      requestBody:
+        description: Login
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+  /sessions/current:
+
+    get:
+      tags:
+        - session
+      summary: Get current logged user
+      description: Get current logged user
+      operationId: getCurrentSession
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - session
+      summary: Logout
+      description: Logout
+      operationId: logout
+      responses:
+        '200':
+          description: Successful logout
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users:
+
+    get:
+      tags:
+        - user
+      summary: Get all users
+      description: Get all users
+      operationId: getUsers
+      x-required-permissions:
+        - users:read:all
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - user
+      summary: Create a new user (Registration)
+      description: Create a new user (Registration)
+      operationId: addUser
+      requestBody:
+        description: Create a new user (Registration)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+    delete:
+      tags:
+        - user
+      summary: Delete all users
+      description: Delete all users
+      operationId: deleteUsers
+      responses:
+        '204':
+          description: All users deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users/{username}:
+    parameters:
+      - name: username
+        in: path
+        description: Username of user to return
+        required: true
+        schema:
+          type: string
+          example: johndoe
+
+    get:
+      tags:
+        - user
+      summary: Get user by username
+      description: Get user by username
+      operationId: getUser
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    
+    delete:
+      tags:
+        - user
+      summary: Delete an existing user
+      description: Delete an existing user
+      operationId: deleteUser
+      responses:
+        '204':
+          description: User deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags:
+        - user
+      summary: Update an existing user
+      description: Update an existing user
+      operationId: updateUser
+      requestBody:
+        description: Update an existing user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users/{username}/cars:
+
+    parameters:
+      - name: username
+        in: path
+        description: Username of user that owns the cars
+        required: true
+        schema:
+          type: string
+          example: johndoe
+
+    get:
+      tags:
+        - car
+      summary: Get all cars of a user
+      description: Get all cars of a user
+      operationId: getUserCars
+      parameters:
+        - name: currently_parked
+          in: query
+          description: If true, return only cars that are currently parked (have a valid ticket)
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - car
+      summary: Add a new car to a user
+      description: Add a new car to a user
+      operationId: addUserCar
+      requestBody:
+        description: Create a new car for a user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+        required: true
+      responses:
+        '201':
+          description: Car created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users/{username}/cars/{plate}:
+
+    parameters:
+      - name: username
+        in: path
+        description: Username of user that owns the car
+        required: true
+        schema:
+          type: string
+          example: johndoe
+      - name: plate
+        in: path
+        description: Plate of car to operate on
+        required: true
+        schema:
+          type: string
+          example: ABC123
+
+    delete:
+      tags:
+        - car
+      summary: Delete an existing car from a user
+      description: Delete an existing car from a user
+      operationId: deleteUserCar
+      responses:
+        '204':
+          description: Car deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags:
+        - car
+      summary: Update an existing car of a user
+      description: Update an existing car of a user
+      operationId: updateUserCar
+      requestBody:
+        description: Update an existing car of a user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+        required: true
+      responses:
+        '200':
+          description: Car updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users/{username}/tickets:
+
+    parameters:
+      - name: username
+        in: path
+        description: Username of user that owns the tickets
+        required: true
+        schema:
+          type: string
+          example: johndoe
+
+    get:
+      tags:
+        - ticket
+      summary: Get all tickets of a user
+      description: Get all tickets of a user
+      operationId: getUserTickets
+      parameters:
+        - name: valid_only
+          in: query
+          description: If true, return only currently valid tickets (not expired)
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users/{username}/fines:
+
+    parameters:
+    - name: username
+      in: path
+      description: Username of user that owns the fines
+      required: true
+      schema:
+        type: string
+        example: johndoe
+
+    get:
+      tags:
+        - fine
+      summary: Get all fines of a user
+      description: Get all fines of a user
+      operationId: getUserFines
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FineResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /cars:
+    get:
+      tags:
+        - car
+      summary: Get all cars
+      description: Get all cars
+      operationId: getCars
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: currently_parked
+          in: query
+          description: If true, return only cars that are currently parked (have a valid ticket)
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - car
+      summary: Delete all cars
+      description: Delete all cars
+      operationId: deleteCars
+      responses:
+        '204':
+          description: All cars deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /tickets:
+    get:
+      tags:
+        - ticket
+      summary: Get all tickets
+      description: Get all tickets
+      operationId: getTickets
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: valid_only
+          in: query
+          description: If true, return only currently valid tickets (not expired)
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: start_date_after
+          in: query
+          description: Filter tickets with start date after this timestamp
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end_date_before
+          in: query
+          description: Filter tickets with end date before this timestamp
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /cars/{plate}/tickets:
+    parameters:
+      - name: plate
+        in: path
+        description: Plate of car to get tickets
+        required: true
+        schema:
+          type: string
+          example: ABC123
+  
+    get:
+      tags:
+        - ticket
+      summary: Get tickets by plate
+      description: Get tickets by plate
+      operationId: getCarTickets
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - ticket
+      summary: Buy a ticket for a car
+      description: Buy a ticket for a car
+      operationId: addCarTicket
+      requestBody:
+        description: Buy a ticket for a car
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketRequest'
+        required: true
+      responses:
+        '201':
+          description: Ticket created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /tickets/{id}:
+
+    parameters:
+      - name: id
+        in: path
+        description: ID of ticket to return
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 10
+
+    get:
+      tags:
+        - ticket
+      summary: Get ticket by ID
+      description: Get ticket by ID
+      operationId: getTicketById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /tickets/{id}/pay:
+
+    parameters:
+    - name: id
+      in: path
+      description: ID of ticket to pay
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 10
+  
+    post:
+      tags:
+        - payment
+      summary: Pay a ticket
+      description: Pay a ticket
+      operationId: payTicket
+      responses:
+        '201':
+          description: Ticket paid successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /fines:
+    get:
+      tags:
+        - fine
+      summary: Get all fines
+      description: Get all fines
+      operationId: getFines
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FineResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - fine
+      summary: Delete all fines
+      description: Delete all fines
+      operationId: deleteFines
+      responses:
+        '204':
+          description: All fines deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /fines/{plate}:
+
+    parameters:
+      - name: plate
+        in: path
+        description: Plate of car to return fine
+        required: true
+        schema:
+          type: string
+          example: 123456
+
+    get:
+      tags:
+        - fine
+      summary: Get fine by plate
+      description: Get fine by plate
+      operationId: getCarFines
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    
+    post:
+      tags:
+        - fine
+      summary: Issue a new fine for a car
+      description: Issue a new fine for a car
+      operationId: addCarFine
+      requestBody:
+        description: Issue a new fine for a car
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FineRequest'
+        required: true
+      responses:
+        '201':
+          description: Fine created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+components:
+  schemas:
+
+    BaseUser:
+      type: object
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+      required: [name, surname, username, email]
+
+    UserRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseUser'
+        - type: object
+          properties:
+            password:
+              type: string
+            role:
+              type: string
+              enum: [driver, controller, admin]
+          required: [password, role]
+
+    UserResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseUser'
+
+    SessionRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required: [username, password]
+
+    SessionResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+        user:
+          $ref: '#/components/schemas/UserResponse'
+      required: [access_token, token_type, expires_in, user]
+
+    BaseTicket:
+      type: object
+      properties:
+        plate:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+      required: [plate, start_date]
+
+    TicketRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseTicket'
+        - type: object
+          properties:
+            duration:
+              type: integer
+          required: [duration]
+
+    TicketResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseTicket'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            end_date:
+              type: string
+              format: date-time
+            price:
+              type: number
+              format: float
+            paid:
+              type: boolean
+            creation_time:
+              type: string
+              format: date-time
+          required: [id, end_date, price, paid, creation_time]
+
+    Car:
+      type: object
+      required: [plate]
+      properties:
+        plate:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+
+    BaseFine:
+      type: object
+      properties:
+        plate:
+          type: string
+        amount:
+          type: number
+          format: float
+      required: [plate, amount]
+
+    FineRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseFine'
+
+    FineResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseFine'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            date:
+              type: string
+              format: date-time
+          required: [id, date]
+
+  responses:
+    UnauthorizedError:
+      description: Unauthorized - Invalid or missing token
+    ForbiddenError:
+      description: Forbidden - Not enough permissions
+    NotFoundError:
+      description: Not found
+    InvalidInputError:
+      description: Invalid input
+    ValidationError:
+      description: Validation error
+    InternalServerError:
+      description: Internal server error
+    UnexpectedError:
+      description: Unexpected error
+
+  x-permissions:
+    driver:
+      - users:read:own
+      - users:write:own
+      - cars:read:own
+      - cars:write:own
+      - tickets:read:own
+      - tickets:write:own
+      - fines:read:own
+    controller:
+      - users:read:own
+      - tickets:read:all
+      - fines:read:all
+      - fines:write:all
+      - cars:read:all
+    admin:
+      - users:read:all
+      - users:write:all
+      - cars:read:all
+      - cars:write:all
+      - tickets:read:all
+      - tickets:write:all
+      - fines:read:all
+      - fines:write:all
+
+  securitySchemes:
+    opp_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token to authenticate requests
+        role: User role (driver, controller, admin)
