@@ -1133,13 +1133,12 @@ components:
             price:
               type: number
               format: float
-            status:
-              type: string
-              enum: [unpaid, active, expired]
+            paid:
+              type: boolean
             creation_time:
               type: string
               format: date-time
-          required: [id, end_date, price, status, creation_time]
+          required: [id, end_date, price, paid, creation_time]
 
     Car:
       type: object
