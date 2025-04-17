@@ -17,7 +17,9 @@ info:
   version: "1.0.0"
 servers:
   - url: http://opp-backend:8080/api/v1
-    description: Local server
+    description: Backend server
+  - url: http://opp-auth:8080/api/v1
+    description: Auth server
 externalDocs:
   description: Wiki
   url: https://openparkproject.github.io/OPP-wiki/
