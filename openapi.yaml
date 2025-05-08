@@ -25,10 +25,10 @@ externalDocs:
   url: https://openparkproject.github.io/OPP-wiki/
 
 tags:
-  - name: user
-    description: user management
   - name: session
     description: session management
+  - name: user
+    description: user management
   - name: car
     description: car management
   - name: ticket
@@ -43,7 +43,7 @@ security:
 
 paths:
 
-  /sessions:
+  /login:
   
     post:
       tags:
@@ -81,21 +81,19 @@ paths:
           $ref: '#/components/responses/NotFoundError'
       security: []
 
-  /sessions/current:
-
     get:
       tags:
         - session
-      summary: Get current logged user
-      description: Get current logged user
-      operationId: getCurrentSession
+      summary: Get current session (get new token)
+      description: Get current session (get new token)
+      operationId: getSession
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/SessionResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -110,8 +108,49 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+      security: []
 
-    delete:
+  /register:
+
+    post:
+      tags:
+        - session
+      summary: Register
+      description: Register
+      operationId: register
+      requestBody:
+        description: Register
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+  /logout:
+  
+    post:
       tags:
         - session
       summary: Logout
@@ -143,8 +182,6 @@ paths:
       summary: Get all users
       description: Get all users
       operationId: getUsers
-      x-required-permissions:
-        - users:read:all
       parameters:
         - name: limit
           in: query
@@ -186,42 +223,6 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
-    post:
-      tags:
-        - user
-      summary: Create a new user (Registration)
-      description: Create a new user (Registration)
-      operationId: addUser
-      requestBody:
-        description: Create a new user (Registration)
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRequest'
-        required: true
-      responses:
-        '201':
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-        '400':
-          $ref: '#/components/responses/InvalidInputError'
-        '422':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '503':
-          $ref: '#/components/responses/UnexpectedError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-      security: []
 
     delete:
       tags:
