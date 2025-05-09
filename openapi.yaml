@@ -148,32 +148,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
       security: []
 
-  /logout:
-  
-    post:
-      tags:
-        - session
-      summary: Logout
-      description: Logout
-      operationId: logout
-      responses:
-        '200':
-          description: Successful logout
-        '400':
-          $ref: '#/components/responses/InvalidInputError'
-        '422':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '503':
-          $ref: '#/components/responses/UnexpectedError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-
   /users:
 
     get:
@@ -248,21 +222,13 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /users/{username}:
-    parameters:
-      - name: username
-        in: path
-        description: Username of user to return
-        required: true
-        schema:
-          type: string
-          example: johndoe
+  /users/me:
 
     get:
       tags:
         - user
-      summary: Get user by username
-      description: Get user by username
+      summary: Get the currently logged user
+      description: Get the currently logged user
       operationId: getUser
       responses:
         '200':
@@ -345,22 +311,13 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /users/{username}/cars:
-
-    parameters:
-      - name: username
-        in: path
-        description: Username of user that owns the cars
-        required: true
-        schema:
-          type: string
-          example: johndoe
+  /users/me/cars:
 
     get:
       tags:
         - car
-      summary: Get all cars of a user
-      description: Get all cars of a user
+      summary: Get all cars of the currently logged user
+      description: Get all cars of the currently logged user
       operationId: getUserCars
       parameters:
         - name: currently_parked
@@ -397,11 +354,11 @@ paths:
     post:
       tags:
         - car
-      summary: Add a new car to a user
-      description: Add a new car to a user
+      summary: Add a new car to the currently logged user
+      description: Add a new car to the currently logged user
       operationId: addUserCar
       requestBody:
-        description: Create a new car for a user
+        description: Create a new car for the currently logged user
         content:
           application/json:
             schema:
@@ -429,16 +386,9 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /users/{username}/cars/{plate}:
+  /users/me/cars/{plate}:
 
     parameters:
-      - name: username
-        in: path
-        description: Username of user that owns the car
-        required: true
-        schema:
-          type: string
-          example: johndoe
       - name: plate
         in: path
         description: Plate of car to operate on
@@ -450,8 +400,8 @@ paths:
     delete:
       tags:
         - car
-      summary: Delete an existing car from a user
-      description: Delete an existing car from a user
+      summary: Delete an existing car from the currently logged user
+      description: Delete an existing car from the currently logged user
       operationId: deleteUserCar
       responses:
         '204':
@@ -474,11 +424,11 @@ paths:
     patch:
       tags:
         - car
-      summary: Update an existing car of a user
-      description: Update an existing car of a user
+      summary: Update an existing car of the currently logged user
+      description: Update an existing car of the currently logged user
       operationId: updateUserCar
       requestBody:
-        description: Update an existing car of a user
+        description: Update an existing car of the currently logged user
         content:
           application/json:
             schema:
@@ -506,22 +456,13 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /users/{username}/tickets:
-
-    parameters:
-      - name: username
-        in: path
-        description: Username of user that owns the tickets
-        required: true
-        schema:
-          type: string
-          example: johndoe
+  /users/me/tickets:
 
     get:
       tags:
         - ticket
-      summary: Get all tickets of a user
-      description: Get all tickets of a user
+      summary: Get all tickets of the currently logged user
+      description: Get all tickets of the currently logged user
       operationId: getUserTickets
       parameters:
         - name: valid_only
@@ -555,22 +496,13 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /users/{username}/fines:
-
-    parameters:
-    - name: username
-      in: path
-      description: Username of user that owns the fines
-      required: true
-      schema:
-        type: string
-        example: johndoe
+  /users/me/fines:
 
     get:
       tags:
         - fine
-      summary: Get all fines of a user
-      description: Get all fines of a user
+      summary: Get all fines of the currently logged user
+      description: Get all fines of the currently logged user
       operationId: getUserFines
       responses:
         '200':
