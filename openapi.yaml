@@ -16,10 +16,8 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: "1.0.0"
 servers:
-  - url: http://opp-backend:8080/api/v1
-    description: Backend server
-  - url: http://opp-auth:8090/api/v1
-    description: Auth server
+  - url: http://openpark.com/api/v1
+    description: Open Park Project Server API v1
 externalDocs:
   description: Wiki
   url: https://openparkproject.github.io/OPP-wiki/
