@@ -168,3 +168,14 @@ jobs:
           token: ${{ secrets.REPO_DISPATCH_TOKEN }}
           repository: OpenParkProject/OPP-backend
           event-type: OPP-common-updated
+
+  trigger-auth:
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+      - name: Trigger repository_dispatch in OPP-auth
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: OpenParkProject/OPP-auth
+          event-type: OPP-common-updated
