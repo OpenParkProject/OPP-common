@@ -1237,6 +1237,392 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
+  /zones:
+    get:
+      tags:
+        - zone
+      summary: Get all zones
+      description: Get all zones
+      operationId: getZones
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - zone
+      summary: Create a new zone
+      description: Create a new zone with the provided details.
+      operationId: createZone
+      requestBody:
+        description: Zone details to create a new zone.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneRequest'
+        required: true
+      responses:
+        '201':
+          description: Zone created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID of the zone to return
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+    get:
+      tags:
+        - zone
+      summary: Get zone by ID
+      description: Get zone by ID
+      operationId: getZoneById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - zone
+      summary: Delete a zone by ID
+      description: Delete a zone by ID
+      operationId: deleteZoneById
+      responses:
+        '204':
+          description: Zone deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      
+    patch:
+      tags:
+        - zone
+      summary: Update an existing zone by ID
+      description: Update an existing zone by ID
+      operationId: updateZoneById
+      requestBody:
+        description: Update an existing zone by ID
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneRequest'
+        required: true
+      responses:
+        '200':
+          description: Zone updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/{name}:
+    
+    parameters:
+      - name: name
+        in: path
+        description: Name of the zone to return
+        required: true
+        schema:
+          type: string
+          example: Downtown Zone
+
+    get:
+      tags:
+        - zone
+      summary: Get zone by name
+      description: Get zone by name
+      operationId: getZoneByName
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/{id}/users:
+
+    parameters:
+      - name: id
+        in: path
+        description: ID of the zone to manage users
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+
+    get:
+      tags:
+        - zone_user_role
+      summary: Get all users with roles in a zone
+      description: Get all users with roles in a specific zone
+      operationId: getZoneUsers
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneUserRoleResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - zone_user_role
+      summary: Add a user with a role to a zone
+      description: Add a user with a specific role to a zone
+      operationId: addZoneUserRole
+      requestBody:
+        description: User and role details to add to the zone
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneUserRoleRequest'
+        required: true
+      responses:
+        '201':
+          description: User added successfully with role in the zone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneUserRoleResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/{id}/users/{username}:
+    parameters:
+      - name: id
+        in: path
+        description: ID of the zone to manage users
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+      - name: username
+        in: path
+        description: Username of the user to manage in the zone
+        required: true
+        schema:
+          type: string
+          example: johndoe
+
+    delete:
+      tags:
+        - zone_user_role
+      summary: Remove a user from a zone
+      description: Remove a user from a specific zone by their ID
+      operationId: removeZoneUserRole
+      responses:
+        '204':
+          description: User removed successfully from the zone
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/location:
+    get:
+      tags:
+        - zone
+      summary: Find zone that contains a specific geographic point
+      description: Returns the zone containing the specified coordinates (latitude, longitude)
+      operationId: getZoneByLocation
+      parameters:
+        - name: lat
+          in: query
+          description: Latitude of the point
+          required: true
+          schema:
+            type: number
+            format: double
+            example: 45.464664
+        - name: lon
+          in: query
+          description: Longitude of the point
+          required: true
+          schema:
+            type: number
+            format: double
+            example: 9.188540
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneResponse'
+        '404':
+          description: No zone found containing this point
+          $ref: '#/components/responses/NotFoundError'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
 components:
   schemas:
 
@@ -1401,6 +1787,91 @@ components:
             paid:
               type: boolean
           required: [id, plate, date, paid]
+
+    ZoneRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Downtown Zone"
+        available:
+          type: boolean
+          example: true
+        geometry:
+          type: string
+          description: GeoJSON string
+          example: '{"type":"Polygon","coordinates":[[[0,0],[0,1],[1,1],[1,0],[0,0]]]}'
+        metadata:
+          type: object
+          description: JSONB field
+          example: {"max_hours": 3, "special_rules": "No overnight parking"}
+        price_offset:
+          type: number
+          format: float
+          example: 2.0
+        price_lin:
+          type: number
+          format: float
+          example: 1.5
+        price_exp:
+          type: number
+          format: float
+          example: 0.75
+      required: [name, available, geometry, price_offset, price_lin, price_exp]
+
+    ZoneResponse:
+      allOf:
+        - $ref: '#/components/schemas/ZoneRequest'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 1
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+          required: [id, created_at, updated_at]
+
+    ZoneUserRoleBase:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "username"
+        role:
+          type: string
+          enum: [admin, controller]
+          example: "controller"
+      required: [username, role]
+
+    ZoneUserRoleRequest:
+      allOf:
+        - $ref: '#/components/schemas/ZoneUserRoleBase'
+
+    ZoneUserRoleResponse:
+      allOf:
+        - $ref: '#/components/schemas/ZoneUserRoleBase'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 1
+            zone_id:
+              type: integer
+              format: int64
+              example: 10
+            assigned_at:
+              type: string
+              format: date-time
+            assigned_by:
+              type: string
+              example: "admin-123"
+          required: [id, zone_id, assigned_at, assigned_by]
 
   responses:
     UnauthorizedError:
