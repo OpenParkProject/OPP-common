@@ -1678,7 +1678,11 @@ components:
         start_date:
           type: string
           format: date-time
-      required: [start_date]
+        zone_id:
+          type: integer
+          format: int64
+          example: 1
+      required: [start_date, zone_id]
 
     TicketRequest:
       allOf:
