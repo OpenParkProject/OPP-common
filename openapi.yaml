@@ -1890,31 +1890,6 @@ components:
     UnexpectedError:
       description: Unexpected error
 
-  x-permissions:
-    driver:
-      - users:read:own
-      - users:write:own
-      - cars:read:own
-      - cars:write:own
-      - tickets:read:own
-      - tickets:write:own
-      - fines:read:own
-    controller:
-      - users:read:own
-      - tickets:read:all
-      - fines:read:all
-      - fines:write:all
-      - cars:read:all
-    admin:
-      - users:read:all
-      - users:write:all
-      - cars:read:all
-      - cars:write:all
-      - tickets:read:all
-      - tickets:write:all
-      - fines:read:all
-      - fines:write:all
-
   securitySchemes:
     opp_auth:
       type: http
