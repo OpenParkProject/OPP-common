@@ -1285,6 +1285,7 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+      security: []
 
     post:
       tags:
@@ -1358,6 +1359,7 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+      security: []
 
     delete:
       tags:
@@ -1583,6 +1585,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
+      security: []
 
 components:
   schemas:
