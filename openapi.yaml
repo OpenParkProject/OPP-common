@@ -807,22 +807,48 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /cars/{plate}/tickets:
+  /zones/{zone_id}/tickets:
     parameters:
-      - name: plate
+      - name: zone_id
         in: path
-        description: Plate of car to get tickets
+        description: ID of zone to get tickets from
         required: true
         schema:
-          type: string
-          example: ABC123
+          type: integer
+          format: int64
+          example: 5
   
     get:
       tags:
         - ticket
-      summary: Get tickets by plate
-      description: Get tickets by plate
-      operationId: getCarTickets
+      summary: Get all tickets for a specific zone
+      description: Get all tickets associated with a specific zone
+      operationId: getZoneTickets
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: valid_only
+          in: query
+          description: If true, return only currently valid tickets (not expired)
+          required: false
+          schema:
+            type: boolean
+            default: false
       responses:
         '200':
           description: Successful operation
@@ -850,11 +876,11 @@ paths:
     post:
       tags:
         - ticket
-      summary: Buy a ticket for a car
-      description: Buy a ticket for a car
-      operationId: addCarTicket
+      summary: Create a new ticket for a specific zone
+      description: Create a new ticket associated with a specific zone
+      operationId: createZoneTicket
       requestBody:
-        description: Buy a ticket for a car
+        description: Create a new ticket for the specified zone
         content:
           application/json:
             schema:
@@ -882,30 +908,50 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /cars/{plate}/fines:
-
+  /zones/{zone_id}/fines:
     parameters:
-      - name: plate
+      - name: zone_id
         in: path
-        description: Plate of car to return fine
+        description: ID of zone to get fines from
         required: true
         schema:
-          type: string
-          example: 123456
-
+          type: integer
+          format: int64
+          example: 5
+  
     get:
       tags:
         - fine
-      summary: Get fine by plate
-      description: Get fine by plate
-      operationId: getCarFines
+      summary: Get all fines for a specific zone
+      description: Get all fines associated with a specific zone
+      operationId: getZoneFines
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FineResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/FineResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -920,15 +966,15 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-    
+
     post:
       tags:
         - fine
-      summary: Issue a new fine for a car
-      description: Issue a new fine for a car
-      operationId: addCarFine
+      summary: Create a new fine for a specific zone
+      description: Create a new fine associated with a specific zone
+      operationId: createZoneFine
       requestBody:
-        description: Issue a new fine for a car
+        description: Create a new fine for the specified zone
         content:
           application/json:
             schema:
@@ -957,7 +1003,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 
   /tickets/{id}:
-
     parameters:
       - name: id
         in: path
@@ -999,8 +1044,8 @@ paths:
     delete:
       tags:
         - ticket
-      summary: Delete an unpaid ticket by ID
-      description: Delete an unpaid ticket by ID
+      summary: Delete a ticket by ID
+      description: Delete a ticket by ID
       operationId: deleteTicketById
       responses:
         '204':
@@ -1691,7 +1736,10 @@ components:
           properties:
             duration:
               type: integer
-          required: [duration]
+            plate:
+              type: string
+              example: "ABC123"
+          required: [duration, plate]
 
     TicketResponse:
       allOf:
@@ -1733,11 +1781,10 @@ components:
         amount:
           type: number
           format: float
-        zone_id:
-          type: integer
-          format: int64
-          example: 1
-      required: [amount, zone_id]
+        plate:
+          type: string
+          example: "ABC123"
+      required: [amount, plate]
 
     FineRequest:
       allOf:
@@ -1751,14 +1798,16 @@ components:
             id:
               type: integer
               format: int64
-            plate:
-              type: string
             date:
               type: string
               format: date-time
             paid:
               type: boolean
-          required: [id, plate, date, paid]
+            zone_id:
+              type: integer
+              format: int64
+              example: 1
+          required: [id, date, paid, zone_id]
 
     ZoneRequest:
       type: object
