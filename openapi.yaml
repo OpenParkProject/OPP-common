@@ -1367,6 +1367,37 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
+  /zones/me:
+    get:
+      tags:
+        - zone
+      summary: Get all zones of the currently logged user
+      description: Get all zones of the currently logged user
+      operationId: getUserZones
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
   /zones/{id}:
     parameters:
       - name: id
