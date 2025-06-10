@@ -807,22 +807,48 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /cars/{plate}/tickets:
+  /zones/{zone_id}/tickets:
     parameters:
-      - name: plate
+      - name: zone_id
         in: path
-        description: Plate of car to get tickets
+        description: ID of zone to get tickets from
         required: true
         schema:
-          type: string
-          example: ABC123
+          type: integer
+          format: int64
+          example: 5
   
     get:
       tags:
         - ticket
-      summary: Get tickets by plate
-      description: Get tickets by plate
-      operationId: getCarTickets
+      summary: Get all tickets for a specific zone
+      description: Get all tickets associated with a specific zone
+      operationId: getZoneTickets
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: valid_only
+          in: query
+          description: If true, return only currently valid tickets (not expired)
+          required: false
+          schema:
+            type: boolean
+            default: false
       responses:
         '200':
           description: Successful operation
@@ -847,100 +873,50 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-    post:
-      tags:
-        - ticket
-      summary: Buy a ticket for a car
-      description: Buy a ticket for a car
-      operationId: addCarTicket
-      requestBody:
-        description: Buy a ticket for a car
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TicketRequest'
-        required: true
-      responses:
-        '201':
-          description: Ticket created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TicketResponse'
-        '400':
-          $ref: '#/components/responses/InvalidInputError'
-        '422':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '503':
-          $ref: '#/components/responses/UnexpectedError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-
-  /cars/{plate}/fines:
-
+  /zones/{zone_id}/fines:
     parameters:
-      - name: plate
+      - name: zone_id
         in: path
-        description: Plate of car to return fine
+        description: ID of zone to get fines from
         required: true
         schema:
-          type: string
-          example: 123456
-
+          type: integer
+          format: int64
+          example: 5
+  
     get:
       tags:
         - fine
-      summary: Get fine by plate
-      description: Get fine by plate
-      operationId: getCarFines
+      summary: Get all fines for a specific zone
+      description: Get all fines associated with a specific zone
+      operationId: getZoneFines
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FineResponse'
-        '400':
-          $ref: '#/components/responses/InvalidInputError'
-        '422':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '503':
-          $ref: '#/components/responses/UnexpectedError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-    
-    post:
-      tags:
-        - fine
-      summary: Issue a new fine for a car
-      description: Issue a new fine for a car
-      operationId: addCarFine
-      requestBody:
-        description: Issue a new fine for a car
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FineRequest'
-        required: true
-      responses:
-        '201':
-          description: Fine created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FineResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/FineResponse'
         '400':
           $ref: '#/components/responses/InvalidInputError'
         '422':
@@ -957,7 +933,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 
   /tickets/{id}:
-
     parameters:
       - name: id
         in: path
@@ -999,8 +974,8 @@ paths:
     delete:
       tags:
         - ticket
-      summary: Delete an unpaid ticket by ID
-      description: Delete an unpaid ticket by ID
+      summary: Delete a ticket by ID
+      description: Delete a ticket by ID
       operationId: deleteTicketById
       responses:
         '204':
