@@ -1733,7 +1733,11 @@ components:
         amount:
           type: number
           format: float
-      required: [amount]
+        zone_id:
+          type: integer
+          format: int64
+          example: 1
+      required: [amount, zone_id]
 
     FineRequest:
       allOf:
