@@ -210,6 +210,38 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
+  /otp/validate:
+    post:
+      tags:
+        - session
+      summary: Validate OTP for totem installation
+      description: Validates the OTP for totem installation
+      operationId: validateOTP
+      requestBody:
+        description: Validate OTP
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OTPValidationRequest'
+        required: true
+      responses:
+        '200':
+          description: OTP validated successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
   /users:
 
     get:
@@ -1893,6 +1925,14 @@ components:
         user:
           $ref: '#/components/schemas/UserResponse'
       required: [access_token, token_type, expires_in, user]
+
+    OTPValidationRequest:
+      type: object
+      properties:
+        otp:
+          type: string
+          example: "123456"
+      required: [otp]
 
     OTPResponse:
       type: object
