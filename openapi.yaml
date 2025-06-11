@@ -241,6 +241,7 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+      security: []
 
   /users:
 
