@@ -1684,7 +1684,7 @@ components:
           example: john.doe@gmail.com
         role:
           type: string
-          enum: [driver, controller, admin]
+          enum: [driver, controller, admin, superuser]
           example: driver
       required: [name, surname, username, email]
     
@@ -1948,4 +1948,4 @@ components:
       bearerFormat: JWT
       description: |
         JWT token to authenticate requests
-        role: User role (driver, controller, admin)
+        role: User role (driver, controller, admin, superuser)
