@@ -35,6 +35,8 @@ tags:
     description: payment management
   - name: fine
     description: fine management
+  - name: totem
+    description: totem management
 
 security:
   - opp_auth: []
@@ -178,6 +180,35 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
       security: []
+
+  /otp:
+    get:
+      tags:
+        - session
+      summary: Generate temporary OTP for totem installation
+      description: Generates a temporary OTP valid for totem installation
+      operationId: generateOTP
+      responses:
+        '200':
+          description: OTP generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OTPResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
 
   /users:
 
@@ -1398,6 +1429,46 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
+  /zones/me/otp:
+    get:
+      tags:
+        - zone
+      summary: Get all zones of the user that genereated the OTP
+      description: Get all zones of the user that generated the OTP
+      operationId: getUserZonesByOtp
+      parameters:
+        - name: otp
+          in: query
+          description: The OTP code to validate
+          required: true
+          schema:
+            type: string
+            example: "123456"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
   /zones/{id}:
     parameters:
       - name: id
@@ -1663,6 +1734,81 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
       security: []
 
+  /totems/register:
+    post:
+      tags:
+        - totem
+      summary: Register a new totem
+      description: Register a new totem and associate it with the selected zone
+      operationId: registerTotem
+      requestBody:
+        description: Totem registration details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TotemRegistrationRequest'
+        required: true
+      responses:
+        '200':
+          description: Totem registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotemRegistrationResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+  /totems/config:
+    get:
+      tags:
+        - totem
+      summary: Get totem configuration
+      description: Returns the configuration for a specific totem based on its MAC address
+      operationId: getTotemConfig
+      parameters:
+        - name: id
+          in: query
+          description: MAC address of the totem
+          required: true
+          schema:
+            type: string
+            example: "AA:BB:CC:DD:EE:FF"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotemConfigResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
 components:
   schemas:
 
@@ -1747,6 +1893,18 @@ components:
         user:
           $ref: '#/components/schemas/UserResponse'
       required: [access_token, token_type, expires_in, user]
+
+    OTPResponse:
+      type: object
+      properties:
+        otp:
+          type: string
+          example: "A7F9C2"
+        valid_until:
+          type: string
+          format: date-time
+          example: "2025-06-11T09:45:00Z"
+      required: [otp, valid_until]
 
     BaseTicket:
       type: object
@@ -1924,6 +2082,76 @@ components:
               type: string
               example: "admin-123"
           required: [id, zone_id, assigned_at, assigned_by]
+
+    BaseTotem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: MAC address of the totem
+          example: "AA:BB:CC:DD:EE:FF"
+        zone_id:
+          type: integer
+          format: int64
+          example: 12
+        latitude:
+          type: number
+          format: double
+          example: 45.064
+        longitude:
+          type: number
+          format: double
+          example: 7.660
+      required: [id, zone_id, latitude, longitude]
+
+    TotemRegistrationRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseTotem'
+        - type: object
+          properties:
+            otp:
+              type: string
+              example: "A7F9C2"
+            timestamp:
+              type: string
+              format: date-time
+              example: "2025-06-11T09:40:00Z"
+          required: [otp, timestamp]
+
+    TotemRegistrationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "ok"
+        id:
+          type: string
+          example: "AA:BB:CC:DD:EE:FF"
+      required: [status, id]
+
+    TotemConfigResponse:
+      type: object
+      properties:
+        zone_id:
+          type: integer
+          format: int64
+          example: 12
+        zone_name:
+          type: string
+          example: "Zona Centro"
+        price_offset:
+          type: number
+          format: float
+          example: 1.0
+        price_lin:
+          type: number
+          format: float
+          example: 1.0
+        price_exp:
+          type: number
+          format: float
+          example: 1.0
+      required: [zone_id, zone_name, price_offset, price_lin, price_exp]
 
   responses:
     UnauthorizedError:
