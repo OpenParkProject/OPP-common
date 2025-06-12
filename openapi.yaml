@@ -1462,21 +1462,21 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /zones/me/otp:
+  /zones/{username}:
     get:
       tags:
         - zone
-      summary: Get all zones of the user that genereated the OTP
-      description: Get all zones of the user that generated the OTP
-      operationId: getUserZonesByOtp
+      summary: Get all zones of the specified user
+      description: Get all zones of the specified user
+      operationId: getUserZonesByUsername
       parameters:
-        - name: otp
-          in: query
-          description: The OTP code to validate
+        - name: username
+          in: path
+          description: Username of the user to get zones for
           required: true
           schema:
             type: string
-            example: "123456"
+            example: johndoe
       responses:
         '200':
           description: Successful operation
