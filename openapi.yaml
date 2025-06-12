@@ -2015,11 +2015,14 @@ components:
         otp:
           type: string
           example: "A7F9C2"
+        username:
+          type: string
+          example: "johndoe"
         valid_until:
           type: string
           format: date-time
           example: "2025-06-11T09:45:00Z"
-      required: [otp, valid_until]
+      required: [otp, username, valid_until]
 
     BaseTicket:
       type: object
