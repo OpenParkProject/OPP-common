@@ -317,6 +317,43 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
+  /users/me/{otp}:
+    get:
+      tags:
+        - session
+      summary: Get user associated with OTP
+      description: Get user associated with the OTP used for totem installation
+      operationId: getUserByOTP
+      parameters:
+        - name: otp
+          in: path
+          description: OTP used for totem installation
+          required: true
+          schema:
+            type: string
+            example: "123456"
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
   /users/me:
 
     get:
@@ -1462,21 +1499,21 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /zones/me/{username}:
+  /zones/me/{otp}:
     get:
       tags:
         - zone
-      summary: Get all zones of the specified user
-      description: Get all zones of the specified user
-      operationId: getUserZonesByUsername
+      summary: Get all zones of the admin that generated the one-time password
+      description: Get all zones of the admin that generated the one-time password
+      operationId: getUserZonesByOTP
       parameters:
-        - name: username
+        - name: otp
           in: path
-          description: Username of the user to get zones for
+          description: One-time password of the user to get zones for
           required: true
           schema:
             type: string
-            example: johndoe
+            example: admin123
       responses:
         '200':
           description: Successful operation
@@ -2015,14 +2052,11 @@ components:
         otp:
           type: string
           example: "A7F9C2"
-        username:
-          type: string
-          example: "johndoe"
         valid_until:
           type: string
           format: date-time
           example: "2025-06-11T09:45:00Z"
-      required: [otp, username, valid_until]
+      required: [otp, valid_until]
 
     BaseTicket:
       type: object
