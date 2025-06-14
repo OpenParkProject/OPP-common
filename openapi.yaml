@@ -449,23 +449,22 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundError'
 
-  /users/{id}:
+  /users/{username}:
     parameters:
-      - name: id
+      - name: username
         in: path
-        description: ID of user to return
+        description: Username of user to return
         required: true
         schema:
-          type: integer
-          format: int64
-          example: 10
+          type: string
+          example: "johndoe"
 
     get:
       tags:
         - user
-      summary: Get user by ID
-      description: Get user by ID
-      operationId: getUserById
+      summary: Get user by username
+      description: Get user by username
+      operationId: getUserByUsername
       responses:
         '200':
           description: Successful operation
@@ -491,9 +490,9 @@ paths:
     delete:
       tags:
         - user
-      summary: Delete a user by ID
-      description: Delete a user by ID
-      operationId: deleteUserById
+      summary: Delete a user by username
+      description: Delete a user by username
+      operationId: deleteUserByUsername
       responses:
         '204':
           description: User deleted successfully
@@ -515,11 +514,11 @@ paths:
     patch:
       tags:
         - user
-      summary: Update an existing user by ID
-      description: Update an existing user by ID
-      operationId: updateUserById
+      summary: Update an existing user by username
+      description: Update an existing user by username
+      operationId: updateUserByUsername
       requestBody:
-        description: Update an existing user by ID
+        description: Update an existing user by username
         content:
           application/json:
             schema:
