@@ -1,0 +1,2308 @@
+openapi: 3.1.0
+info:
+  title: Open Park Project - OpenAPI 3.1
+  description: |-
+    The Open Park Project (OPP) is a free open-source project that aims to 
+    provide a scalable and flexible platform for the management of parking areas.
+
+    Some useful links:
+    - [Open Park Project](https://github.com/OpenParkProject)
+    - [API definition](https://raw.githubusercontent.com/OpenParkProject/OPP-common/refs/heads/main/openapi.yaml)
+
+  contact:
+    email: tollsimy.dev@protonmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: "0.1.0"
+servers:
+  - url: http://openpark.com/api/v1
+    description: Open Park Project Server API v1
+externalDocs:
+  description: Wiki
+  url: https://openparkproject.github.io/OPP-wiki/
+
+tags:
+  - name: session
+    description: session management
+  - name: user
+    description: user management
+  - name: car
+    description: car management
+  - name: ticket
+    description: ticket management
+  - name: payment
+    description: payment management
+  - name: fine
+    description: fine management
+  - name: totem
+    description: totem management
+
+security:
+  - opp_auth: []
+
+paths:
+
+  /login:
+  
+    post:
+      tags:
+        - session
+      summary: Login
+      description: Login
+      operationId: login
+      requestBody:
+        description: Login
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+    get:
+      tags:
+        - session
+      summary: Get current session (get new token)
+      description: Get current session (get new token)
+      operationId: getSession
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /register:
+
+    post:
+      tags:
+        - session
+      summary: Register
+      description: Register
+      operationId: register
+      requestBody:
+        description: Register
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+  /pubkey:
+    
+    get:
+      tags:
+        - session
+      summary: Get token public key
+      description: Get token public key
+      operationId: getPubKey
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pubkey:
+                    type: string
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+  /otp:
+    get:
+      tags:
+        - session
+      summary: Generate temporary OTP for totem installation
+      description: Generates a temporary OTP valid for totem installation
+      operationId: generateOTP
+      responses:
+        '200':
+          description: OTP generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OTPResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /otp/validate:
+    post:
+      tags:
+        - session
+      summary: Validate OTP for totem installation
+      description: Validates the OTP for totem installation
+      operationId: validateOTP
+      requestBody:
+        description: Validate OTP
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OTPValidationRequest'
+        required: true
+      responses:
+        '200':
+          description: OTP validated successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+  /users:
+
+    get:
+      tags:
+        - user
+      summary: Get all users
+      description: Get all users
+      operationId: getUsers
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - user
+      summary: Delete all users
+      description: Delete all users
+      operationId: deleteUsers
+      responses:
+        '204':
+          description: All users deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /otp/users/{otp}:
+    get:
+      tags:
+        - session
+      summary: Get user associated with OTP
+      description: Get user associated with the OTP used for totem installation
+      operationId: getUserByOTP
+      parameters:
+        - name: otp
+          in: path
+          description: OTP used for totem installation
+          required: true
+          schema:
+            type: string
+            example: "123456"
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    description: Username of the user associated with the OTP
+                    example: "johndoe"
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+  /users/me:
+
+    get:
+      tags:
+        - user
+      summary: Get the currently logged user
+      description: Get the currently logged user
+      operationId: getUser
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    
+    delete:
+      tags:
+        - user
+      summary: Delete an existing user
+      description: Delete an existing user
+      operationId: deleteUser
+      responses:
+        '204':
+          description: User deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags:
+        - user
+      summary: Update an existing user
+      description: Update an existing user
+      operationId: updateUser
+      requestBody:
+        description: Update an existing user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+        required: true
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users/{username}:
+    parameters:
+      - name: username
+        in: path
+        description: Username of user to return
+        required: true
+        schema:
+          type: string
+          example: "johndoe"
+
+    get:
+      tags:
+        - user
+      summary: Get user by username
+      description: Get user by username
+      operationId: getUserByUsername
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - user
+      summary: Delete a user by username
+      description: Delete a user by username
+      operationId: deleteUserByUsername
+      responses:
+        '204':
+          description: User deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags:
+        - user
+      summary: Update an existing user by username
+      description: Update an existing user by username
+      operationId: updateUserByUsername
+      requestBody:
+        description: Update an existing user by username
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users/me/cars:
+
+    get:
+      tags:
+        - car
+      summary: Get all cars of the currently logged user
+      description: Get all cars of the currently logged user
+      operationId: getUserCars
+      parameters:
+        - name: currently_parked
+          in: query
+          description: If true, return only cars that are currently parked (have a valid ticket)
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - car
+      summary: Add a new car to the currently logged user
+      description: Add a new car to the currently logged user
+      operationId: addUserCar
+      requestBody:
+        description: Create a new car for the currently logged user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+        required: true
+      responses:
+        '201':
+          description: Car created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users/me/cars/{plate}:
+
+    parameters:
+      - name: plate
+        in: path
+        description: Plate of car to operate on
+        required: true
+        schema:
+          type: string
+          example: ABC123
+
+    delete:
+      tags:
+        - car
+      summary: Delete an existing car from the currently logged user
+      description: Delete an existing car from the currently logged user
+      operationId: deleteUserCar
+      responses:
+        '204':
+          description: Car deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags:
+        - car
+      summary: Update an existing car of the currently logged user
+      description: Update an existing car of the currently logged user
+      operationId: updateUserCar
+      requestBody:
+        description: Update an existing car of the currently logged user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+        required: true
+      responses:
+        '200':
+          description: Car updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users/me/tickets:
+
+    get:
+      tags:
+        - ticket
+      summary: Get all tickets of the currently logged user
+      description: Get all tickets of the currently logged user
+      operationId: getUserTickets
+      parameters:
+        - name: valid_only
+          in: query
+          description: If true, return only currently valid tickets (not expired)
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /users/me/fines:
+
+    get:
+      tags:
+        - fine
+      summary: Get all fines of the currently logged user
+      description: Get all fines of the currently logged user
+      operationId: getUserFines
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FineResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /cars:
+    get:
+      tags:
+        - car
+      summary: Get all cars
+      description: Get all cars
+      operationId: getCars
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: currently_parked
+          in: query
+          description: If true, return only cars that are currently parked (have a valid ticket)
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - car
+      summary: Delete all cars
+      description: Delete all cars
+      operationId: deleteCars
+      responses:
+        '204':
+          description: All cars deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /tickets:
+    get:
+      tags:
+        - ticket
+      summary: Get all tickets
+      description: Get all tickets
+      operationId: getTickets
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: valid_only
+          in: query
+          description: If true, return only currently valid tickets (not expired)
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: start_date_after
+          in: query
+          description: Filter tickets with start date after this timestamp
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end_date_before
+          in: query
+          description: Filter tickets with end date before this timestamp
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/{id}/tickets:
+    parameters:
+      - name: id
+        in: path
+        description: ID of zone to get tickets from
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 5
+  
+    get:
+      tags:
+        - ticket
+      summary: Get all tickets for a specific zone
+      description: Get all tickets associated with a specific zone
+      operationId: getZoneTickets
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: valid_only
+          in: query
+          description: If true, return only currently valid tickets (not expired)
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - ticket
+      summary: Create a new ticket for a specific zone
+      description: Create a new ticket associated with a specific zone
+      operationId: createZoneTicket
+      requestBody:
+        description: Create a new ticket for the specified zone
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketRequest'
+        required: true
+      responses:
+        '201':
+          description: Ticket created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/{id}/fines:
+    parameters:
+      - name: id
+        in: path
+        description: ID of zone to get fines from
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 5
+  
+    get:
+      tags:
+        - fine
+      summary: Get all fines for a specific zone
+      description: Get all fines associated with a specific zone
+      operationId: getZoneFines
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FineResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - fine
+      summary: Create a new fine for a specific zone
+      description: Create a new fine associated with a specific zone
+      operationId: createZoneFine
+      requestBody:
+        description: Create a new fine for the specified zone
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FineRequest'
+        required: true
+      responses:
+        '201':
+          description: Fine created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /tickets/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID of ticket to return
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 10
+
+    get:
+      tags:
+        - ticket
+      summary: Get ticket by ID
+      description: Get ticket by ID
+      operationId: getTicketById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - ticket
+      summary: Delete a ticket by ID
+      description: Delete a ticket by ID
+      operationId: deleteTicketById
+      responses:
+        '204':
+          description: Ticket deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /tickets/{id}/pay:
+
+    parameters:
+    - name: id
+      in: path
+      description: ID of ticket to pay
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 10
+  
+    post:
+      tags:
+        - payment
+      summary: Pay a ticket
+      description: Pay a ticket
+      operationId: payTicket
+      responses:
+        '201':
+          description: Ticket paid successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /fines:
+    get:
+      tags:
+        - fine
+      summary: Get all fines
+      description: Get all fines
+      operationId: getFines
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FineResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - fine
+      summary: Delete all fines
+      description: Delete all fines
+      operationId: deleteFines
+      responses:
+        '204':
+          description: All fines deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /fines/{id}:
+
+    parameters:
+      - name: id
+        in: path
+        description: ID of fine to return
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 10
+
+    get:
+      tags:
+        - fine
+      summary: Get fine by ID
+      description: Get fine by ID
+      operationId: getFineById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - fine
+      summary: Delete a fine by ID
+      description: Delete a fine by ID
+      operationId: deleteFineById
+      responses:
+        '204':
+          description: Fine deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /fines/{id}/pay:
+
+    parameters:
+      - name: id
+        in: path
+        description: ID of fine to pay
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 10
+
+    post:
+      tags:
+        - payment
+      summary: Pay a fine
+      description: Pay a fine
+      operationId: payFine
+      responses:
+        '201':
+          description: Fine paid successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones:
+    get:
+      tags:
+        - zone
+      summary: Get all zones
+      description: Get all zones
+      operationId: getZones
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+    post:
+      tags:
+        - zone
+      summary: Create a new zone
+      description: Create a new zone with the provided details.
+      operationId: createZone
+      requestBody:
+        description: Zone details to create a new zone.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneRequest'
+        required: true
+      responses:
+        '201':
+          description: Zone created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/me:
+    get:
+      tags:
+        - zone
+      summary: Get all zones of the currently logged user
+      description: Get all zones of the currently logged user
+      operationId: getUserZones
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/me/{otp}:
+    get:
+      tags:
+        - zone
+      summary: Get all zones of the admin that generated the one-time password
+      description: Get all zones of the admin that generated the one-time password
+      operationId: getUserZonesByOTP
+      parameters:
+        - name: otp
+          in: path
+          description: One-time password of the user to get zones for
+          required: true
+          schema:
+            type: string
+            example: admin123
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+  /zones/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID of the zone to return
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+    get:
+      tags:
+        - zone
+      summary: Get zone by ID
+      description: Get zone by ID
+      operationId: getZoneById
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+    delete:
+      tags:
+        - zone
+      summary: Delete a zone by ID
+      description: Delete a zone by ID
+      operationId: deleteZoneById
+      responses:
+        '204':
+          description: Zone deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      
+    patch:
+      tags:
+        - zone
+      summary: Update an existing zone by ID
+      description: Update an existing zone by ID
+      operationId: updateZoneById
+      requestBody:
+        description: Update an existing zone by ID
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneRequest'
+        required: true
+      responses:
+        '200':
+          description: Zone updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/{id}/users:
+
+    parameters:
+      - name: id
+        in: path
+        description: ID of the zone to manage users
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+
+    get:
+      tags:
+        - zone_user_role
+      summary: Get all users with roles in a zone
+      description: Get all users with roles in a specific zone
+      operationId: getZoneUsers
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneUserRoleResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - zone_user_role
+      summary: Add a user with a role to a zone
+      description: Add a user with a specific role to a zone
+      operationId: addZoneUserRole
+      requestBody:
+        description: User and role details to add to the zone
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneUserRoleRequest'
+        required: true
+      responses:
+        '201':
+          description: User added successfully with role in the zone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneUserRoleResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/{id}/users/{username}:
+    parameters:
+      - name: id
+        in: path
+        description: ID of the zone to manage users
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+      - name: username
+        in: path
+        description: Username of the user to manage in the zone
+        required: true
+        schema:
+          type: string
+          example: johndoe
+
+    delete:
+      tags:
+        - zone_user_role
+      summary: Remove a user from a zone
+      description: Remove a user from a specific zone by their ID
+      operationId: removeZoneUserRole
+      responses:
+        '204':
+          description: User removed successfully from the zone
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /zones/location:
+    get:
+      tags:
+        - zone
+      summary: Find zone that contains a specific geographic point
+      description: Returns the zone containing the specified coordinates (latitude, longitude)
+      operationId: getZoneByLocation
+      parameters:
+        - name: lat
+          in: query
+          description: Latitude of the point
+          required: true
+          schema:
+            type: number
+            format: double
+            example: 45.464664
+        - name: lon
+          in: query
+          description: Longitude of the point
+          required: true
+          schema:
+            type: number
+            format: double
+            example: 9.188540
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneResponse'
+        '404':
+          description: No zone found containing this point
+          $ref: '#/components/responses/NotFoundError'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+      security: []
+
+  /totems:
+    post:
+      tags:
+        - totem
+      summary: Register a new totem
+      description: Register a new totem and associate it with the selected zone
+      operationId: registerTotem
+      requestBody:
+        description: Totem registration details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TotemRequest'
+        required: true
+      responses:
+        '200':
+          description: Totem registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotemResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+    
+    get:
+      tags:
+        - totem
+      summary: Get all totems
+      description: Get all registered totems
+      operationId: getAllTotems
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TotemResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+  /totems/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID of the totem to return
+        required: true
+        schema:
+          type: string
+          example: "AA:BB:CC:DD:EE:FF"
+
+    get:
+      tags:
+        - totem
+      summary: Get totem configuration
+      description: Get the configuration of a specific totem by its ID
+      operationId: getTotemConfig
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotemResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security: []
+
+    delete:
+      tags:
+        - totem
+      summary: Delete a totem by ID
+      description: Delete a totem by its ID
+      operationId: deleteTotemById
+      responses:
+        '204':
+          description: Totem deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidInputError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/UnexpectedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+components:
+  schemas:
+
+    BaseUser:
+      type: object
+      properties:
+        name:
+          type: string
+          example: John
+        surname:
+          type: string
+          example: Doe
+        username:
+          type: string
+          example: johndoe
+        email:
+          type: string
+          format: email
+          example: john.doe@gmail.com
+        role:
+          type: string
+          enum: [driver, controller, admin, superuser]
+          example: driver
+      required: [name, surname, username, email]
+    
+    UserRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseUser'
+        - type: object
+          properties:
+            password:
+              type: string
+              example: "securePassword123"
+          required: [password]
+    
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: John
+        surname:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@gmail.com
+        password:
+          type: string
+          example: "newSecurePassword456"
+    
+    UserResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseUser'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 10
+          required: [id, role]
+
+    SessionRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required: [username, password]
+
+    SessionResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+        user:
+          $ref: '#/components/schemas/UserResponse'
+      required: [access_token, token_type, expires_in, user]
+
+    OTPValidationRequest:
+      type: object
+      properties:
+        otp:
+          type: string
+          example: "123456"
+      required: [otp]
+
+    OTPResponse:
+      type: object
+      properties:
+        otp:
+          type: string
+          example: "A7F9C2"
+        valid_until:
+          type: string
+          format: date-time
+          example: "2025-06-11T09:45:00Z"
+      required: [otp, valid_until]
+
+    BaseTicket:
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date-time
+      required: [start_date]
+
+    TicketRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseTicket'
+        - type: object
+          properties:
+            duration:
+              type: integer
+            plate:
+              type: string
+              example: "ABC123"
+          required: [duration, plate]
+
+    TicketResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseTicket'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            plate:
+              type: string
+            end_date:
+              type: string
+              format: date-time
+            price:
+              type: number
+              format: float
+            paid:
+              type: boolean
+            creation_time:
+              type: string
+              format: date-time
+            zone_id:
+              type: integer
+              format: int64
+              example: 1
+          required: [id, plate, end_date, price, paid, creation_time, zone_id]
+
+    Car:
+      type: object
+      required: [plate]
+      properties:
+        plate:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+
+    BaseFine:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float
+        plate:
+          type: string
+          example: "ABC123"
+      required: [amount, plate]
+
+    FineRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseFine'
+
+    FineResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseFine'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            date:
+              type: string
+              format: date-time
+            paid:
+              type: boolean
+            zone_id:
+              type: integer
+              format: int64
+              example: 1
+          required: [id, date, paid, zone_id]
+
+    ZoneRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Downtown Zone"
+        available:
+          type: boolean
+          example: true
+        geometry:
+          type: string
+          description: GeoJSON string
+          example: '{"type":"Polygon","coordinates":[[[0,0],[0,1],[1,1],[1,0],[0,0]]]}'
+        metadata:
+          type: object
+          description: JSONB field
+          example: {"max_hours": 3, "special_rules": "No overnight parking"}
+        price_offset:
+          type: number
+          format: float
+          example: 2.0
+        price_lin:
+          type: number
+          format: float
+          example: 1.5
+        price_exp:
+          type: number
+          format: float
+          example: 0.75
+      required: [name, available, geometry, price_offset, price_lin, price_exp]
+
+    ZoneResponse:
+      allOf:
+        - $ref: '#/components/schemas/ZoneRequest'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 1
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+          required: [id, created_at, updated_at]
+
+    ZoneUserRoleBase:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "username"
+        role:
+          type: string
+          enum: [admin, controller]
+          example: "controller"
+      required: [username, role]
+
+    ZoneUserRoleRequest:
+      allOf:
+        - $ref: '#/components/schemas/ZoneUserRoleBase'
+
+    ZoneUserRoleResponse:
+      allOf:
+        - $ref: '#/components/schemas/ZoneUserRoleBase'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 1
+            zone_id:
+              type: integer
+              format: int64
+              example: 10
+            assigned_at:
+              type: string
+              format: date-time
+            assigned_by:
+              type: string
+              example: "admin-123"
+          required: [id, zone_id, assigned_at, assigned_by]
+
+    BaseTotem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: serial ID of the totem
+          example: "AA:BB:CC:DD:EE:FF"
+        zone_id:
+          type: integer
+          format: int64
+          example: 12
+        latitude:
+          type: number
+          format: double
+          example: 45.064
+        longitude:
+          type: number
+          format: double
+          example: 7.660
+      required: [id, zone_id, latitude, longitude]
+
+    TotemRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseTotem'
+        - type: object
+          properties:
+            otp:
+              type: string
+              example: "A7F9C2"
+          required: [otp]
+
+    TotemResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseTotem'
+        - type: object
+          properties:
+            registration_time:
+              type: string
+              format: date-time
+              example: "2025-06-11T09:45:00Z"
+          required: [registration_time]
+
+  responses:
+    UnauthorizedError:
+      description: Unauthorized - Invalid or missing token
+    ForbiddenError:
+      description: Forbidden - Not enough permissions
+    NotFoundError:
+      description: Not found
+    InvalidInputError:
+      description: Invalid input
+    ValidationError:
+      description: Validation error
+    InternalServerError:
+      description: Internal server error
+    UnexpectedError:
+      description: Unexpected error
+
+  securitySchemes:
+    opp_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token to authenticate requests
+        role: User role (driver, controller, admin, superuser)

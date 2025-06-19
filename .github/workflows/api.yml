@@ -1,0 +1,181 @@
+name: Validate and generate API, trigger updates
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  prerequisites:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+  validate:
+    needs: prerequisites
+    runs-on: ubuntu-latest
+    container:
+      image: openapitools/openapi-generator-cli
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Validate API
+        run: docker-entrypoint.sh validate -i openapi.yaml
+
+  generate:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Dart API clients (docker)
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/local -u $(id -u):$(id -g) openapitools/openapi-generator-cli generate \
+            -i /local/openapi.yaml -g dart-dio \
+            -o /local/dart-dio-client --git-user-id OpenParkProject \
+            --git-repo-id OPP-common \
+            --additional-properties=pubName=opp_api_client
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install dependencies & run build_runner
+        working-directory: dart-dio-client
+        run: |
+          sudo apt-get update && sudo apt-get install -y unzip
+          dart pub get
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Generate Python API client (docker)
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/local -u $(id -u):$(id -g) openapitools/openapi-generator-cli generate \
+            -i /local/openapi.yaml -g python \
+            -o /local/python-client --git-user-id OpenParkProject \
+            --git-repo-id OPP-common \
+            --additional-properties=pubName=opp_api_client
+
+      - name: Upload Dart artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dart-dio-client
+          path: dart-dio-client
+          if-no-files-found: error
+
+      - name: Upload Python artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-client
+          path: python-client
+          if-no-files-found: error
+
+  push-generated-dart:
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Dart artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dart-dio-client
+
+      - name: push dart-dio-client
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions Bot"
+          git checkout --orphan dart-dio-client
+          git add .
+          git commit -m "Update generated dart-dio-client" || exit 0
+          git push origin dart-dio-client -f          
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+  push-generated-python:
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Python artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-client
+              
+      - name: push python-client
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions Bot"
+          git checkout --orphan python-client
+          git add .
+          git commit -m "Update generated python-client" || exit 0
+          git push origin python-client -f   
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+      runs-on: ubuntu-latest
+      needs: generate
+      steps:
+        - uses: actions/checkout@v4
+        
+        - name: Download Dart artifacts
+          uses: actions/download-artifact@v4
+          with:
+            name: dart-dio-client
+            path: dart-dio-client
+        
+        - name: Download Python artifacts
+          uses: actions/download-artifact@v4
+          with:
+            name: python-client
+            path: python-client
+
+        - name: Compress artifacts
+          run: |
+            tar -czf dart-dio-client.tar.gz dart-dio-client
+            tar -czf python-client.tar.gz python-client
+        
+        - name: Create GitHub Release
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            VERSION="v$(date +'%Y.%m.%d.%H%M')"
+            gh release create $VERSION \
+              --title "API $VERSION" \
+              --notes "Automated API release generated from OpenAPI spec" \
+              dart-dio-client.tar.gz \
+              python-client.tar.gz
+
+  trigger-frontend:
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+      - name: Trigger repository_dispatch in OPP-frontend
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: OpenParkProject/OPP-frontend
+          event-type: OPP-common-updated
+  
+  trigger-backend:
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+      - name: Trigger repository_dispatch in OPP-backend
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: OpenParkProject/OPP-backend
+          event-type: OPP-common-updated
+
+  trigger-auth:
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+      - name: Trigger repository_dispatch in OPP-auth
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: OpenParkProject/OPP-auth
+          event-type: OPP-common-updated

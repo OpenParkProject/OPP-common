@@ -1,0 +1,21 @@
+name: Generate and Push API Docs
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  trigger-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger repository_dispatch in OPP-wiki
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: OpenParkProject/OPP-wiki
+          event-type: OPP-common-updated
